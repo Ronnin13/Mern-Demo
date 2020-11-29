@@ -1,0 +1,6 @@
+{
+    "mongodb":"mongodb+srv://levinpqr:Levin809@merncluster.k9geh.mongodb.net/mern_db?retryWrites=true&w=majority",
+    "jwtSecret":"mYySSs3eEcKkrRRRe3TThtthTokeN",
+    "githubClientSecret":"0f414afd494c09d484bdf55416577b0ccc58be10",
+    "githubClientID":"35e706ffa48936696a35"
+}
