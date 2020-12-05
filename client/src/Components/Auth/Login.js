@@ -3,12 +3,14 @@ import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../../actions/auth";
 import { setAlert } from "../../actions/alert";
+import { setLoading } from "../../actions/loading";
 import PropTypes from "prop-types";
 import { loginUser } from "../../API/Auth";
 import { LOGIN_FAILED, LOGIN_SUCCESS } from "../../actions/types";
+import get from "lodash/get";
 
 const Login = (props) => {
-    const { login, setAlert, isAuthenticated } = props;
+    const { login, setAlert, isAuthenticated, setLoading } = props;
     const [formData, setFormData] = React.useState({
         email: "",
         password: "",
@@ -26,6 +28,7 @@ const Login = (props) => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         await loginUser({ email, password })
             .then((res) => {
                 login(LOGIN_SUCCESS, res.data);
@@ -33,13 +36,15 @@ const Login = (props) => {
             })
             .catch((e) => {
                 console.log("Err", e.response);
-                if (e.response && e.response.data && e.response.data.errors) {
+                const errors = get(e, "response.data.errors", undefined);
+                if (errors) {
                     e.response.data.errors.forEach((err) => {
                         setAlert(err.msg, "danger");
                     });
                 }
                 login(LOGIN_FAILED);
             });
+        setLoading(false);
     };
 
     if (isAuthenticated) return <Redirect to="/dashboard" />;
@@ -87,10 +92,11 @@ Login.propTypes = {
     login: PropTypes.func.isRequired,
     setAlert: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
+    setLoading: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-    isAuthenticated: state.auth.isAuthenticated
+const mapStateToProps = (state) => ({
+    isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { login, setAlert })(Login);
+export default connect(mapStateToProps, { login, setAlert, setLoading })(Login);

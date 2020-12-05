@@ -17,7 +17,13 @@ async function createUser(req, res) {
         last_name,
         email,
         password,
+        passwordConf,
     } = req.body;
+
+    if (passwordConf !== password)
+        return res
+            .status(400)
+            .json({ errors: [{ msg: "Passwords do not match" }] });
 
     let isSaved = false;
     let user;

@@ -21,6 +21,9 @@ router.post(
         check("password", `6 characters password is required`).isLength({
             min: 6,
         }),
+        check("passwordConf", `Confirm password is required`).isLength({
+            min: 6,
+        }),
     ],
     createUser
 );

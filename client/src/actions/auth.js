@@ -1,12 +1,14 @@
-import { AUTH_ERROR, USER_LOADED, LOGOUT } from "./types";
+import { AUTH_ERROR, USER_LOADED, LOGOUT, CLEAR_PROFILE } from "./types";
 import setAuthToken from "../utils/setAuthToken";
 import { getUserByToken } from "../API/Auth";
+import { setLoading } from "./loading";
+
 
 export const loadUser = () => async (dispatch) => {
     if (localStorage.token) {
         setAuthToken(localStorage.token);
     }
-
+    dispatch(setLoading(true));
     await getUserByToken()
         .then((res) => {
             dispatch({
@@ -20,6 +22,7 @@ export const loadUser = () => async (dispatch) => {
                 type: AUTH_ERROR,
             });
         });
+        dispatch(setLoading(false));
 };
 
 export const register = (resp_type, data = undefined) => async (dispatch) => {
@@ -51,6 +54,9 @@ export const login = (resp_type, data = undefined) => async (dispatch) => {
 };
 
 export const logout = () => (dispatch) => {
+    dispatch({
+        type: CLEAR_PROFILE,
+    });
     dispatch({
         type: LOGOUT,
     });

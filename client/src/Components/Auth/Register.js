@@ -6,9 +6,11 @@ import { register } from "../../actions/auth";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { REGISTER_SUCCESS, REGISTER_FAIL } from "../../actions/types";
+import get from "lodash/get";
+import { setLoading } from "../../actions/loading";
 
 const Register = (props) => {
-    const { setAlert, register, isAuthenticated } = props;
+    const { setAlert, register, isAuthenticated, setLoading } = props;
 
     const [formData, setFormData] = React.useState({
         first_name: "",
@@ -38,51 +40,32 @@ const Register = (props) => {
         });
     };
 
-    const validateEmail = (email) => {
-        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
-    };
-
     const onSubmit = async (e) => {
         e.preventDefault();
-        let hasErrors = false;
 
-        if (password !== passwordConf) {
-            setAlert("Passwords do not match", "danger");
-            hasErrors = true;
-        }
-
-        if (!validateEmail(email)) {
-            setAlert("Email address is not valid", "danger");
-            hasErrors = true;
-        }
-
-        if (!hasErrors) {
-            const res = await registerUser({
+        try {
+            const payload = {
                 first_name,
                 middle_name,
                 suffix,
                 last_name,
                 password,
+                passwordConf,
                 email,
-            }).catch((err) => {
-                if (
-                    err.response &&
-                    err.response.data &&
-                    err.response.data.errors
-                ) {
-                    err.response.data.errors.forEach((err) => {
-                        setAlert(err.msg, "danger");
-                    });
-                }
-                console.log(err);
-            });
-            console.log("res", res);
-            if (res) {
-                register(REGISTER_SUCCESS, res.data);
-            } else {
-                register(REGISTER_FAIL);
+            };
+            setLoading(true);
+            const res = await registerUser(payload);
+            setLoading(false);
+            register(REGISTER_SUCCESS, res.data);
+        } catch (err) {
+            const errors = get(err, "response.data.errors", undefined);
+            if (errors) {
+                err.response.data.errors.forEach((err) => {
+                    setAlert(err.msg, "danger");
+                });
             }
+            console.log(err);
+            register(REGISTER_FAIL);
         }
     };
 
@@ -184,10 +167,13 @@ Register.propTypes = {
     setAlert: PropTypes.func.isRequired,
     register: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
+    setLoading: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
     isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { setAlert, register })(Register);
+export default connect(mapStateToProps, { setAlert, register, setLoading })(
+    Register
+);
