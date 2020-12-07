@@ -1,6 +1,6 @@
 import { SET_LOADING, UNSET_LOADING } from "../actions/types";
 
-export default function (state = { flag: false }, action) {
+export default function loading (state = { flag: false }, action) {
     const { type } = action;
     switch (type) {
         case SET_LOADING:

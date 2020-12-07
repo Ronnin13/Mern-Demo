@@ -59,7 +59,7 @@ const UpdateProfile = (props) => {
                 instagram: social.instagram || "",
             });
         }
-    }, [profile]);
+    }, [profile, getCurrentProfile]);
 
     const [socialMedia, toggleSocialMedia] = React.useState(false);
 
@@ -78,7 +78,7 @@ const UpdateProfile = (props) => {
 
     return (
         <React.Fragment>
-            <h1 className="large text-primary">Create Your Profile</h1>
+            <h1 className="large text-primary">Update Your Profile</h1>
             <p className="lead">
                 <i className="fas fa-user"></i> Let's get some information to
                 make your profile stand out

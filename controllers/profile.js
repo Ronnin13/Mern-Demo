@@ -1,5 +1,6 @@
 const Profile = require("../models/Profile");
 const User = require("../models/User");
+const Post = require("../models/Post");
 const { validationResult } = require("express-validator");
 const request = require("request");
 const config = require("config");
@@ -8,13 +9,17 @@ async function me(req, res) {
     try {
         const profile = await Profile.findOne({
             user_id: req.user._id,
-        }).populate("user", [
-            "first_name",
-            "middle_name",
-            "suffix",
-            "last_name",
-            "avatar",
-        ]);
+        }).populate({
+            path: "user_id",
+            model: "user",
+            select: [
+                "first_name",
+                "middle_name",
+                "suffix",
+                "last_name",
+                "avatar",
+            ],
+        });
         if (!profile) return res.status(404).json({ msg: "No profile found" });
         return res.json(profile);
     } catch (e) {
@@ -91,13 +96,17 @@ async function createProfile(req, res) {
 
 async function listProfiles(req, res) {
     try {
-        const profiles = await Profile.find().populate("user", [
-            "first_name",
-            "middle_name",
-            "suffix",
-            "last_name",
-            "avatar",
-        ]);
+        const profiles = await Profile.find().populate({
+            path: "user_id",
+            model: "user",
+            select: [
+                "first_name",
+                "middle_name",
+                "suffix",
+                "last_name",
+                "avatar",
+            ],
+        });
         return res.json(profiles);
     } catch (e) {
         console.error(e);
@@ -109,13 +118,17 @@ async function getProfileById(req, res) {
     try {
         const profile = await Profile.findOne({
             user_id: req.params.user_id,
-        }).populate("user", [
-            "first_name",
-            "middle_name",
-            "suffix",
-            "last_name",
-            "avatar",
-        ]);
+        }).populate({
+            path: "user_id",
+            model: "user",
+            select: [
+                "first_name",
+                "middle_name",
+                "suffix",
+                "last_name",
+                "avatar",
+            ],
+        });
         if (!profile) return res.status(404).json({ msg: "Profile Not Found" });
         return res.json(profile);
     } catch (e) {
@@ -126,7 +139,7 @@ async function getProfileById(req, res) {
 
 async function deleteByToken(req, res) {
     try {
-        // to-do remove posts of user
+        await Post.deleteMany({ user_id: req.user._id });
 
         await Profile.findOneAndRemove({ user_id: req.user._id });
         await User.findByIdAndRemove(req.user._id);
@@ -163,10 +176,21 @@ async function putExperience(req, res) {
         description,
     };
 
-    const profile = await Profile.findOne({ user_id: req.user._id });
-    profile.experiences.unshift(newExperience);
-    await profile.save();
-    return res.json(profile);
+    let manual_errors = [];
+    if (!from) manual_errors.push({ msg: "From Date is required" });
+    if (!current && !to) manual_errors.push({ msg: "To Date is required" });
+    if (manual_errors.length)
+        return res.status(400).json({ errors: manual_errors });
+
+    try {
+        const profile = await Profile.findOne({ user_id: req.user._id });
+        profile.experiences.unshift(newExperience);
+        await profile.save();
+        return res.json(profile);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ msg: e.message });
+    }
 }
 
 async function removeProfileExperience(req, res) {
@@ -205,10 +229,21 @@ async function putEducation(req, res) {
         description,
     };
 
-    const profile = await Profile.findOne({ user_id: req.user._id });
-    profile.education.unshift(newEducation);
-    await profile.save();
-    return res.json(profile);
+    let manual_errors = [];
+    if (!from) manual_errors.push({ msg: "From Date is required" });
+    if (!current && !to) manual_errors.push({ msg: "To Date is required" });
+    if (manual_errors.length)
+        return res.status(400).json({ errors: manual_errors });
+
+    try {
+        const profile = await Profile.findOne({ user_id: req.user._id });
+        profile.education.unshift(newEducation);
+        await profile.save();
+        return res.json(profile);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ msg: e.message });
+    }
 }
 
 async function removeProfileEducation(req, res) {

@@ -8,16 +8,19 @@ import Login from "./Components/Auth/Login";
 import Alert from "./Components/Layout/Alert";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import PrivateRoute from "./Components/Routing/PrivateRoute";
+import LoadingSpinner from "./Components/Layout/LoadingSpinner";
 import setAuthToken from "./utils/setAuthToken";
 import { loadUser } from "./actions/auth";
 import CreateProfile from "./Components/ProfileForm/CreateProfile";
 import UpdateProfile from "./Components/ProfileForm/UpdateProfile";
+import AddExperience from "./Components/ProfileForm/AddExperience";
+import AddEducation from "./Components/ProfileForm/AddEducation";
+import Profiles from "./Components/Profiles/Profiles";
+import Profile from "./Components/Profile/Profile";
 
 // redux imports
 import { Provider } from "react-redux";
 import store from "./store";
-import LoadingSpinner from "./Components/Layout/LoadingSpinner";
-import get from "lodash/get";
 
 if (localStorage.token) {
     setAuthToken(localStorage.token);
@@ -44,6 +47,16 @@ function App() {
                                 component={Register}
                             />
                             <Route exact path="/login" component={Login} />
+                            <Route
+                                exact
+                                path="/profiles"
+                                component={Profiles}
+                            />
+                            <Route
+                                exact
+                                path="/profile/:id"
+                                component={Profile}
+                            />
                             <PrivateRoute
                                 exact
                                 path="/dashboard"
@@ -58,6 +71,16 @@ function App() {
                                 exact
                                 path="/edit-profile"
                                 component={UpdateProfile}
+                            />
+                            <PrivateRoute
+                                exact
+                                path="/add-experience"
+                                component={AddExperience}
+                            />
+                            <PrivateRoute
+                                exact
+                                path="/add-education"
+                                component={AddEducation}
                             />
                         </Switch>
                     </section>
