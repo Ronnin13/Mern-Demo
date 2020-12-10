@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 const ProfileGithub = (props) => {
-    const { github_username, repos } = props;
+    const { repos } = props;
     return (
         <div className="profile-github">
             <h2 className="text-primary my-1">Github Repos</h2>
@@ -42,12 +42,10 @@ const ProfileGithub = (props) => {
 
 ProfileGithub.propTypes = {
     repos: PropTypes.array.isRequired,
-    github_username: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = (state) => ({
     repos: state.profile.repos,
-    github_username: state.profile.profile.github_username,
 });
 
 export default connect(mapStateToProps)(ProfileGithub);

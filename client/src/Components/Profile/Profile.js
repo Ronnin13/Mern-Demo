@@ -42,7 +42,7 @@ const Profile = (props) => {
             setGithubUsername(ghubUsername);
             getUserGithubRepositories(ghubUsername);
         }
-    }, [getUserGithubRepositories, profile]);
+    }, [getUserGithubRepositories, profile, githubUsername]);
 
     if (!profileView) return <React.Fragment></React.Fragment>;
 
@@ -60,7 +60,7 @@ const Profile = (props) => {
                     Edit Profile
                 </Link>
             )}
-            <div class="profile-grid my-1">
+            <div className="profile-grid my-1">
                 <ProfileTop profile={profileView} />
                 <ProfileAbout profile={profileView} />
                 <div className="profile-exp bg-white p-2">
